@@ -10,7 +10,9 @@ from Users.show_user import ShowUserWindow
 from Users.erase_user import EraseUserWindow
 from Users.update_user import UpdateUserWindow
 from Users.filter_user import FilterUserWindow
-
+from Products.add_products import AddProductWindow
+from Products.show_products import ShowProductsWindow
+from Products.update_products import UpdateProductsWindow
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -69,16 +71,39 @@ class MainWindow(QMainWindow):
 #
         filter_user_action = QAction('Filtrar Usuario', self)
         filter_user_action.triggered.connect(self.filter_user_window)
+        
+
+        # Crear acciones para agregar y actualizar productos en el menú
+
+        add_product_action = QAction('Agregar Productos', self)
+        add_product_action.triggered.connect(self.add_product_window)
+
+        update_product_action = QAction('Actualizar Productos', self)
+        update_product_action.triggered.connect(self.update_products_window)
+
+        show_product_action = QAction('Mostrar Productos', self)
+        show_product_action.triggered.connect(self.show_product_window)
+
 
 
          #Agregar la barra de usuario
         main_menu = self.menuWidget()
-        file_menu = main_menu.addMenu('Creacion de Usuario')
+        file_menu = main_menu.addMenu('Control de Usuario')
         file_menu.addAction(add_user_action)
         file_menu.addAction(update_user_action)
         file_menu.addAction(show_user_action)
         file_menu.addAction(erase_user_action)
         file_menu.addAction(filter_user_action)
+
+
+        #agregar la barra de productos
+        main_menu = self.menuWidget()
+        file_menu = main_menu.addMenu('Control de Productos')
+        file_menu.addAction(add_product_action)
+        file_menu.addAction(update_product_action)
+        file_menu.addAction(show_product_action)
+        #file_menu.addAction(erase_product_action)
+        #file_menu.addAction(filter_product_action)
 
 
 
@@ -128,6 +153,19 @@ class MainWindow(QMainWindow):
         # Crear la ventana de filtrar tareas
         filter_user_window = FilterUserWindow()
         filter_user_window.exec_()
+
+    def add_product_window(self):
+        add_product_window = AddProductWindow()
+        add_product_window.exec_()
+
+    def show_product_window(self):
+        # Crear la ventana de mostrar tareas
+        show_product_window = ShowProductsWindow()
+        show_product_window.exec_()
+
+    def update_products_window(self):
+        update_product_window = UpdateProductsWindow()
+        update_product_window.exec_()
 
 
 def main():

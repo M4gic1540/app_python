@@ -140,7 +140,8 @@ def crear_tabla_usuario(connection):
                        'rut VARCHAR(13) NOT NULL UNIQUE, '
                        'es_cliente BOOLEAN, '
                        'fecha_nacimiento DATE, '
-                       'password VARCHAR(255) NOT NULL, '  # Corrección en la posición de la coma
+                       # Corrección en la posición de la coma
+                       'password VARCHAR(255) NOT NULL, '
                        'INDEX idx_email (email), '
                        'INDEX idx_rut (rut))'
                        )
@@ -248,5 +249,69 @@ def filtrar_usuarios(connection, user_id=None, nombre=None, apellidos=None, emai
         return usuarios_filtrados
     except mysql.connector.Error as e:
         print(f'Error al seleccionar los usuarios filtrados: {e}')
+    finally:
+        cursor.close()
+
+# Productos
+
+
+def crear_tabla_productos(connection):
+    try:
+        cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS productos ('
+                       'id INT AUTO_INCREMENT PRIMARY KEY, '
+                       'nombre_producto VARCHAR(255), '
+                       'precio DECIMAL(10,2), '
+                       'stock INT, '
+                       'proveedor VARCHAR(255), '
+                       'fecha_elab DATE, '
+                       'fecha_venc DATE, '
+                       'INDEX idx_nombre_producto (nombre_producto), '
+                       'INDEX idx_proveedor (proveedor)'
+                       ')')
+        connection.commit()
+        print('Tabla productos creada correctamente')
+    except mysql.connector.Error as e:
+        print(f'Error al crear la tabla productos: {e}')
+    finally:
+        cursor.close()
+
+def agregar_productos(connection, nombre_producto, precio, stock, proveedor, fecha_elab, fecha_venc):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            'INSERT INTO productos (nombre_producto, precio, stock, proveedor, fecha_elab, fecha_venc) VALUES (%s, %s, %s, %s, %s, %s)',
+            (nombre_producto, precio, stock, proveedor, fecha_elab, fecha_venc)
+        )
+        connection.commit()
+        print('Producto agregado correctamente')
+    except mysql.connector.Error as e:
+        print(f'Error al agregar el producto: {e}')
+    finally:
+        cursor.close()
+
+def mostrar_productos(connection):
+    try:
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM productos')
+        productos = cursor.fetchall()
+        return productos
+    except mysql.connector.Error as e:
+        print(f'Error al mostrar los productos: {e}')
+    finally:
+        cursor.close()
+
+
+def actualizar_productos(connection, id, nombre_producto, precio, stock, proveedor, fecha_elab, fecha_venc):
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            'UPDATE productos SET nombre_producto = %s, precio = %s, stock = %s, proveedor = %s, fecha_elab = %s, fecha_venc = %s WHERE id = %s',
+            (nombre_producto, precio, stock, proveedor, fecha_elab, fecha_venc, id)
+        )
+        connection.commit()
+        print('Producto actualizado correctamente')
+    except mysql.connector.Error as e:
+        print(f'Error al actualizar el producto: {e}')
     finally:
         cursor.close()
