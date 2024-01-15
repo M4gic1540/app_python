@@ -315,3 +315,59 @@ def actualizar_productos(connection, id, nombre_producto, precio, stock, proveed
         print(f'Error al actualizar el producto: {e}')
     finally:
         cursor.close()
+
+def borrar_productos(connection, id):
+    try:
+        cursor = connection.cursor()
+        cursor.execute('DELETE FROM productos WHERE id = %s', (id,))
+        connection.commit()
+        print('Producto borrado correctamente')
+    except mysql.connector.Error as e:
+        print(f'Error al borrar el producto: {e}')
+    finally:
+        cursor.close()
+
+
+def filtrar_productos(connection, nombre_producto=None, proveedor=None, fecha_elab=None, fecha_venc=None):
+    try:
+        cursor = connection.cursor()
+        query = 'SELECT * FROM productos WHERE '
+        conditions = []
+
+        if nombre_producto is not None:
+            conditions.append('nombre_producto = %s')
+        if proveedor is not None:
+            conditions.append('proveedor = %s')
+        if fecha_elab is not None:
+            conditions.append('fecha_elab = %s')
+        if fecha_venc is not None:
+            conditions.append('fecha_venc = %s')
+
+        if not conditions:
+            print('No se proporcionaron criterios de filtrado.')
+            return []
+
+        where_clause = ' AND '.join(conditions)
+        query += where_clause
+
+        if nombre_producto is not None:
+            cursor.execute(query, (nombre_producto,))
+        elif proveedor is not None:
+            cursor.execute(query, (proveedor,))
+        elif fecha_elab is not None:
+            cursor.execute(query, (fecha_elab,))
+        elif fecha_venc is not None:
+            cursor.execute(query, (fecha_venc,))
+
+        productos_filtrados = cursor.fetchall()
+
+        if not productos_filtrados:
+            print('No hay productos que coincidan con los criterios de filtrado.')
+
+        return productos_filtrados
+    except mysql.connector.Error as e:
+        print(f'Error al seleccionar los productos filtrados: {e}')
+        return []
+    finally:
+        cursor.close()
+

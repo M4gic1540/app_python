@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout
 from PyQt5.QtCore import QDate
 import mysql.connector
 from Conn_bd import connect_to_database, crear_tabla_usuario, agregar_user
-import argon2
 from argon2 import PasswordHasher
 
 class AddUserWindow(QDialog):

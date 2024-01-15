@@ -12,13 +12,13 @@ class EraseUserWindow(QDialog):
         self.lbl_id = QLabel('Ingrese ID:' , self)
         self.txt_id = QLineEdit(self)
 
-        btn_erase_task = QPushButton('Eliminar Usuario', self)
-        btn_erase_task.clicked.connect(self.erase_user)
+        btn_erase_product = QPushButton('Eliminar Usuario', self)
+        btn_erase_product.clicked.connect(self.erase_user)
 
         layout = QVBoxLayout()
         layout.addWidget(self.lbl_id)
         layout.addWidget(self.txt_id)
-        layout.addWidget(btn_erase_task)
+        layout.addWidget(btn_erase_product)
 
         self.setLayout(layout)
 

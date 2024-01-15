@@ -13,7 +13,8 @@ from Users.filter_user import FilterUserWindow
 from Products.add_products import AddProductWindow
 from Products.show_products import ShowProductsWindow
 from Products.update_products import UpdateProductsWindow
-
+from Products.erase_products import EraseProductsWindow
+from Products.filter_products import FilterProductsWindow
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -84,6 +85,12 @@ class MainWindow(QMainWindow):
         show_product_action = QAction('Mostrar Productos', self)
         show_product_action.triggered.connect(self.show_product_window)
 
+        erase_product_window = QAction('Eliminar Productos', self)
+        erase_product_window.triggered.connect(self.erase_product_window)
+
+        filter_product_action = QAction('Filtrar Productos', self)
+        filter_product_action.triggered.connect(self.filter_product_window)
+
 
 
          #Agregar la barra de usuario
@@ -102,8 +109,8 @@ class MainWindow(QMainWindow):
         file_menu.addAction(add_product_action)
         file_menu.addAction(update_product_action)
         file_menu.addAction(show_product_action)
-        #file_menu.addAction(erase_product_action)
-        #file_menu.addAction(filter_product_action)
+        file_menu.addAction(erase_product_window)
+        file_menu.addAction(filter_product_action)
 
 
 
@@ -163,10 +170,19 @@ class MainWindow(QMainWindow):
         show_product_window = ShowProductsWindow()
         show_product_window.exec_()
 
-    def update_products_window(self):
-        update_product_window = UpdateProductsWindow()
+    def update_products_window(self, product_id):
+        product_id = product_id
+        update_product_window = UpdateProductsWindow(product_id=product_id)
         update_product_window.exec_()
 
+    def erase_product_window(self):
+        erase_product_window = EraseProductsWindow()
+        erase_product_window.exec_()
+
+    def filter_product_window(self):
+        # Crear la ventana de filtrar productos
+        filter_product_window = FilterProductsWindow()
+        filter_product_window.exec_()
 
 def main():
     app = QApplication(sys.argv)

@@ -1,35 +1,45 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout, QCalendarWidget, QMessageBox
+from PyQt5.QtWidgets import QPushButton, QLabel, QLineEdit, QVBoxLayout, QCalendarWidget, QDialog
 from Conn_bd import connect_to_database, actualizar_productos
-from PyQt5.QtCore import QDate
-import mysql.connector
+
 
 class UpdateProductsWindow(QDialog):
-    def __init__(self, product_id):
-        super().__init__()
+    def __init__(self, product_id, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('Actualizar Producto')
+        self.setGeometry(200, 200, 400, 300)
 
-        self.product_id = product_id
+        # Etiquetas y campos de entrada para actualizar el producto
+        self.lbl_id = QLabel('ID del Producto a Actualizar:', self)
+        self.txt_id = QLineEdit(self)
 
-        self.setWindowTitle("Actualizar Producto")
-        self.resize(400, 300)
-
-        self.lbl_name = QLabel("Nombre Producto:", self)
+        self.lbl_name = QLabel('Ingrese el Nuevo Nombre:', self)
         self.txt_name = QLineEdit(self)
-        self.lbl_price = QLabel("Precio:", self)
-        self.txt_price = QLineEdit(self)
-        self.lbl_stock = QLabel("Stock:", self)
-        self.txt_stock = QLineEdit(self)
-        self.lbl_provider = QLabel("Proveedor:", self)
-        self.txt_provider = QLineEdit(self)
-        self.lbl_date_elab = QLabel("Fecha de Elaboración:", self)
-        self.calendar_elab = QCalendarWidget(self)
-        self.lbl_date_venc = QLabel("Fecha de Vencimiento:", self)
-        self.calendar_venc = QCalendarWidget(self)
-        self.btn_update = QPushButton("Actualizar", self)
-        self.btn_update.clicked.connect(self.confirm_and_update)
-        self.btn_cancel = QPushButton("Cancelar", self)
-        self.btn_cancel.clicked.connect(self.close)
 
-        layout = QVBoxLayout(self)
+        self.lbl_price = QLabel('Ingrese el Nuevo Precio:', self)
+        self.txt_price = QLineEdit(self)
+
+        self.lbl_stock = QLabel('Ingrese el Nuevo Stock:', self)
+        self.txt_stock = QLineEdit(self)
+
+        self.lbl_provider = QLabel('Ingrese el Nuevo Proveedor:', self)
+        self.txt_provider = QLineEdit(self)
+
+        self.lbl_date_elab = QLabel('Fecha de Elaboración:', self)
+        self.calendar_elab = QCalendarWidget(self)
+        self.calendar_elab.setGridVisible(True)
+
+        self.lbl_date_venc = QLabel('Fecha de vencimiento:', self)
+        self.calendar_venc = QCalendarWidget(self)
+        self.calendar_venc.setGridVisible(True)
+
+        # Botón para actualizar producto
+        btn_update_product = QPushButton('Actualizar Producto', self)
+        btn_update_product.clicked.connect(self.update_product)
+
+        # Diseño de la ventana
+        layout = QVBoxLayout()
+        layout.addWidget(self.lbl_id)
+        layout.addWidget(self.txt_id)
         layout.addWidget(self.lbl_name)
         layout.addWidget(self.txt_name)
         layout.addWidget(self.lbl_price)
@@ -42,60 +52,42 @@ class UpdateProductsWindow(QDialog):
         layout.addWidget(self.calendar_elab)
         layout.addWidget(self.lbl_date_venc)
         layout.addWidget(self.calendar_venc)
-        layout.addWidget(self.btn_update)
-        layout.addWidget(self.btn_cancel)
+        layout.addWidget(btn_update_product)
 
-        self.load_product_data()
+        self.setLayout(layout)
 
-    def load_product_data(self):
-        # Obtener los datos actuales del producto
-        connection = connect_to_database()
-        if connection:
-            try:
-                cursor = connection.cursor()
-                cursor.execute('SELECT * FROM productos WHERE id = %s', (self.product_id,))
-                product_data = cursor.fetchone()
+        self.selected_date_elab = None
+        self.selected_date_venc = None
 
-                if product_data:
-                    self.txt_name.setText(str(product_data[1]))
-                    self.txt_price.setText(str(product_data[2]))
-                    self.txt_stock.setText(str(product_data[3]))
-                    self.txt_provider.setText(str(product_data[4]))
+    def show_date_elab(self, date):
+        self.selected_date_elab = date.toString('yyyy-MM-dd')
 
-                    elab_date = product_data[5]
-                    self.calendar_elab.setSelectedDate(QDate.fromString(elab_date, 'yyyy-MM-dd'))
+    def show_date_venc(self, date):
+        self.selected_date_venc = date.toString('yyyy-MM-dd')
 
-                    venc_date = product_data[6]
-                    self.calendar_venc.setSelectedDate(QDate.fromString(venc_date, 'yyyy-MM-dd'))
-
-                else:
-                    print('Producto no encontrado.')
-
-            except mysql.connector.Error as e:
-                print(f'Error al cargar datos del producto: {e}')
-            finally:
-                cursor.close()
-                connection.close()
-
-    def confirm_and_update(self):
-        # Llamando a la función actualizar_productos y agregando la lógica de confirmación o mensaje
+    def update_product(self):
+        # Obtener la información ingresada por el usuario para actualizar el producto
+        product_id_text = self.txt_id.text()
+        
+        # Verificar si el contenido de txt_id es un valor numérico
+        if not product_id_text.isdigit():
+            print('El ID del producto debe ser un número válido.')
+            return
+        
+        product_id = int(product_id_text)  # Convertir el valor del campo txt_id a un entero
         name = self.txt_name.text()
-        price = self.txt_price.text()
+        price = float(self.txt_price.text())
         stock = self.txt_stock.text()
         provider = self.txt_provider.text()
         elab_date = self.calendar_elab.selectedDate().toString('yyyy-MM-dd')
         venc_date = self.calendar_venc.selectedDate().toString('yyyy-MM-dd')
 
-        confirmation = QMessageBox.question(self, 'Confirmación', '¿Está seguro de actualizar este producto?',
-                                            QMessageBox.Yes | QMessageBox.No)
-        if confirmation == QMessageBox.Yes:
-            # Lógica para actualizar el producto en la base de datos
-            connection = connect_to_database()
-            if connection:
-                actualizar_productos(connection, self.product_id, name, price, stock, provider, elab_date, venc_date)
-                connection.close()
-                QMessageBox.information(self, 'Producto Actualizado', 'El producto se ha actualizado correctamente.')
-                self.close()  # Cerrar la ventana después de actualizar el producto
-        else:
-            # Puedes agregar más lógica si el usuario cancela la acción
-            pass
+        # Realizar la conexión a la base de datos y actualizar el producto
+        db_connection = connect_to_database()
+        if db_connection:
+            actualizar_productos(
+                db_connection, product_id, name, price, stock, provider, elab_date, venc_date)
+            self.close()
+
+        db_connection.close()
+
