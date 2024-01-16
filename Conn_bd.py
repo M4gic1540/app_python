@@ -1,6 +1,6 @@
 import mysql.connector
 from dotenv import dotenv_values
-
+from argon2 import PasswordHasher
 
 def connect_to_database():
     try:
@@ -371,3 +371,33 @@ def filtrar_productos(connection, nombre_producto=None, proveedor=None, fecha_el
     finally:
         cursor.close()
 
+
+# login de usuario
+def login_usuario(rut, password):
+    connection = connect_to_database()
+    if connection:
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT id, password FROM users WHERE rut = %s", (rut,))
+            result = cursor.fetchone()
+
+            if result:
+                user_id, stored_password = result
+                ph = PasswordHasher()
+                
+                try:
+                    ph.verify(stored_password, password)
+                    return True, user_id
+                except:
+                    return False, None
+            else:
+                return False, None
+
+        except mysql.connector.Error as e:
+            print(f'Error al realizar el inicio de sesión: {e}')
+
+        finally:
+            cursor.close()
+            connection.close()
+
+    return False, None

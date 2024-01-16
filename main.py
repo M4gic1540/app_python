@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QDialog
 from Task.add_task_window import AddTaskWindow
 from Task.update_task_window import UpdateTaskWindow
 from Task.show_task import ShowTaskWindow
@@ -15,14 +15,25 @@ from Products.show_products import ShowProductsWindow
 from Products.update_products import UpdateProductsWindow
 from Products.erase_products import EraseProductsWindow
 from Products.filter_products import FilterProductsWindow
+from Users.login_user import LoginWindow
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.try_show_login()
 
     def init_ui(self):
         self.setWindowTitle('Gestor de Tareas')
         self.setGeometry(100, 100, 400, 400)
+
+    def try_show_login(self):
+        login_window = LoginWindow()
+        if login_window.exec_() == QDialog.Accepted:
+            # Si el inicio de sesión es exitoso, mostrar la ventana principal
+            self.show()
+        else:
+            # Si el inicio de sesión es cancelado, salir de la aplicación
+            sys.exit()
 
         # Crear acciones para agregar y actualizar tarea en el menú
         add_task_action = QAction('Agregar Tarea', self)
